@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "$comment": "Merge this into your repo's .claude/settings.json. The deny list is the floor: no agent ever pushes to a protected branch, force-pushes, or bypasses hooks. The hook closes the GitHub-API and `gh pr merge` routes that the deny list can't see.",
+  "permissions": {
+    "deny": [
+      "Bash(git push * main:*)",
+      "Bash(git push * main)",
+      "Bash(git push * HEAD:main*)",
+      "Bash(git push * master:*)",
+      "Bash(git push * master)",
+      "Bash(git push * HEAD:master*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push *--force-with-lease*)",
+      "Bash(git push *--force*)",
+      "Bash(git commit *--no-verify*)",
+      "Bash(git push *--no-verify*)",
+      "Bash(git reset --hard*)",
+      "Bash(git branch -D*)",
+      "Bash(git config user.email*)",
+      "Bash(git config user.name*)",
+      "Bash(git config --global*)",
+      "mcp__github__create_repository",
+      "mcp__github__fork_repository",
+      "mcp__github__delete_file"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "mcp__github__enable_pr_auto_merge"
+    ],
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(git fetch*)",
+      "Bash(git worktree*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue view*)",
+      "Bash(gh label list*)",
+      "Write(.agents/reviews/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__github__merge_pull_request|mcp__github__push_files|mcp__github__create_or_update_file|mcp__github__update_pull_request",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-protected-branch.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

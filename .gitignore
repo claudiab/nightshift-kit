@@ -1,0 +1,6 @@
+.agents/
+.claude/worktrees/
+ops/babysit-log.md
+node_modules/
+.DS_Store
+**/.DS_Store

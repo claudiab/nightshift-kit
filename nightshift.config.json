@@ -1,0 +1,88 @@
+{
+  "$comment": "The one file you edit. Every /ns-* command reads this first. Keep it honest — the exclusion lists are the only thing standing between an agent and your auth code.",
+
+  "repo": "OWNER/REPO",
+  "base_branch": "development",
+  "protected_branches": ["main", "master"],
+  "branch_prefix": "claude/",
+
+  "labels": {
+    "ready_for_agent": "ready-for-agent",
+    "ready_for_human": "ready-for-human",
+    "needs_info": "needs-info",
+    "do_not_merge": "do-not-merge",
+    "pause": "nightshift:pause",
+    "hold": "nightshift:hold",
+    "blocked": "nightshift:blocked",
+    "needs_work": "nightshift:needs-work",
+    "skip_issue_if_any": ["ready-for-human", "needs-info", "question", "blocked", "epic"]
+  },
+
+  "caps": {
+    "issues_per_night": 2,
+    "merges_per_night": 3,
+    "reviews_per_night": 6,
+    "max_files_per_pr": 5,
+    "min_build_gate_pass_rate": 0.17
+  },
+
+  "verify": {
+    "$comment": "Commands the agent runs on a PR head. Must exit non-zero on failure. Leave a value empty to skip that step (it will be reported as SKIP, never as PASS).",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run lint",
+    "format_check": "npx prettier --check"
+  },
+
+  "test_file_globs": ["**/*.spec.*", "**/*.test.*", "**/__tests__/**"],
+
+  "exclusions": {
+    "$comment": "A PR touching any of these is routed to a human. Path globs are matched against `gh pr diff --name-only`; content patterns are grepped in the diff body because path globs leak. Add your own — this default list is a floor, not a ceiling.",
+    "paths": [
+      ".github/workflows/**",
+      ".env*",
+      "**/migrations/**",
+      "**/schema.prisma",
+      "**/*auth*/**",
+      "**/*permission*",
+      "**/*guard*",
+      "**/*payment*/**",
+      "**/*billing*/**",
+      "**/*webhook*",
+      "Dockerfile*",
+      "docker-compose*",
+      "infra/**",
+      "scripts/worktree.sh",
+      ".claude/**",
+      "ops/nightshift.*",
+      "nightshift.config.json"
+    ],
+    "content": [
+      "process.env.",
+      "SECRET",
+      "API_KEY",
+      "PRIVATE_KEY",
+      "idempotency",
+      "webhook signature"
+    ]
+  },
+
+  "issue_body_exclude_keywords": [
+    "migration", "schema", "auth", "permission", "payment", "billing", "secret", "env var", "pricing"
+  ],
+
+  "issue_body_pending_phrases": [
+    "pick one", "tbd", "to be decided", "pending decision", "needs discussion", "open question"
+  ],
+
+  "ui_lint": {
+    "$comment": "Optional. Deterministic checks the agent applies to changed stylesheet/markup files. Empty list = skipped.",
+    "patterns": []
+  },
+
+  "schedule": {
+    "fanout_cron": "7 1 * * *",
+    "merge_gate_cron": "7 3 * * *",
+    "timezone": "America/Chicago"
+  }
+}
